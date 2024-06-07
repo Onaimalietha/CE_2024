@@ -20,7 +20,6 @@ def fitness(genotipo):
         return 0
 
 
-
 def verifica_restricoes(array):
     '''
     Verifica se alguma restrição de quantidade de individuos foi desobedecida em um array
@@ -59,10 +58,10 @@ min_of_each = 1
 max_inds = max_IC + max_Mest + max_Dout + max_Prof
 
 # Definição dos parâmetros
-taxa_mutacao = 0.00
+taxa_mutacao = 0.05
 tamanho_populacao = 10
-fitness_ideal = horas_max * 0.98 # vou estimar como 95% das horas máximas pq sim, sei lá, se der errado eu mudo dps foda-se
-geracao_limite = 1000
+fitness_ideal = horas_max # vou estimar como 95% das horas máximas pq sim, sei lá, se der errado eu mudo dps foda-se
+geracao_limite = 10000
 
 # Gerar populações iniciais de cada um dos tipos de indivíduos
 populacao = []
@@ -123,12 +122,11 @@ for gen in range(0, geracao_limite):
         else:
             pais[j] = populacao[index_pai_2]
 
-    # Elitismo
-
-    # Crossover
+    # Crossover e elitismo
     offspring = np.zeros(size, dtype=int)
+    offspring[0] = melhor_genotipo
 
-    for k in range(tamanho_populacao):
+    for k in range(1, tamanho_populacao):
         # Random crossover gene point
         ponto_de_crossover = np.random.randint(max_inds)
         index_pai_1 = np.random.randint(tamanho_populacao)
@@ -141,13 +139,10 @@ for gen in range(0, geracao_limite):
         offspring[k, ponto_de_crossover:] = pai_2[ponto_de_crossover:]
 
     # Mutation
-    #for l in range(tamanho_populacao):
-    #    for m in range(max_inds):
-    #        if np.random.rand() < taxa_mutacao:
-    #            if offspring[l][m] == 0:
-    #                offspring[l][m] = 1
-    #            else:
-    #                offspring[l][m] = 0
+    for l in range(1, tamanho_populacao):
+        for m in range(max_inds):
+            if np.random.rand() < taxa_mutacao:
+                offspring[l][m] = np.random.randint(4)
 
     # Update population
     populacao = offspring
