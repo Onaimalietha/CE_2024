@@ -32,7 +32,7 @@ for it in range(max_it):
 
     route[:,0] = 1 # every ant will start at city 1
 
-    for i in range(m):
+    for i in range(m-1):
 
         temp_h = np.array(h) # buffer heuristic matrix
 
@@ -56,7 +56,7 @@ for it in range(max_it):
             sumProb = np.cumsum(prob)
 
             random = np.random.random_sample() # generate random number [0,1)
-            city = np.nonzero(sumProb>random)[0][0]+1   # bruxaria do python, obg gepeto
+            city = np.nonzero(sumProb>random)[0][0]+1   # first true value for sumProb>random vector defined as next city
             route[i, j+1] = city 
 
         lastCity = list(set([i for i in range(1, n+1)]) - set(route[i,:-2]))[0]
@@ -76,8 +76,6 @@ for it in range(max_it):
     dist_min_cost = costs[dist_min_loc]
 
     bestRoute = route[dist_min_loc,:]
-    print(route)
-    print(costs)
     t = (1-e)*t
 
     for i in range(m):
