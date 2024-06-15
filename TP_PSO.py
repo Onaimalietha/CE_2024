@@ -37,7 +37,7 @@ bounds = (np.array(min_bound), np.array(max_bound))
 options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
 
 # Call instance of PSO with bounds argument
-optimizer = ps.single.GlobalBestPSO(n_particles=50, dimensions=3, options=options, bounds=bounds)
+optimizer = ps.single.GlobalBestPSO(n_particles=20, dimensions=3, options=options, bounds=bounds)
 
 start = time.time()
 # Perform optimization

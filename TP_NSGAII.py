@@ -8,11 +8,9 @@ from pymoo.termination import get_termination
 import time
 from system import *
 
-
 desired_error = 0
 desired_overshoot = 2
 desired_ts = 0.5
-
 
 class PIDOptimizationProblem(ElementwiseProblem):
     def __init__(self, num, den, time):
