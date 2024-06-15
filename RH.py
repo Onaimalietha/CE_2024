@@ -10,11 +10,10 @@ def fitness(genotipo):
     ''' 
     value = 0
     if verifica_restricoes(genotipo):
-        for i in range(len(genotipo) - 1):
-            if genotipo[i] < 5:
-                value += horas[genotipo[i]]
-                if value > 800:
-                    return 0
+        for i in range(len(genotipo)):
+            value = value + horas[i] * genotipo[i]
+            if value > horas_max:
+                return 0
         return value
     else:
         return 0
@@ -26,61 +25,41 @@ def verifica_restricoes(array):
 
     retorna True caso as restrições sejam bem obedecidas, retorna False caso alguma delas seja quebrada
     '''
-    if count_ind(0, array) > 5 or count_ind(0, array) < 1 or count_ind(1, array) > 4 or count_ind(1, array) < 1 or count_ind(2, array) > 3 or count_ind(2, array) < 1 or count_ind(3, array) > 2 or count_ind(3, array) < 1:
-        return False
+    for i in range(len(array)):
+        if array[i] > max_qntd[i] or array[i] < 1:
+            return False
     return True
 
-def count_ind(id, array):
-    '''
-    Verifica a quantidade de individuos com um (id) em um determinado array de individuos
-
-    retorna a quantidade
-    '''
-    qntd = 0
-    for i in range(len(array)):
-        if array[i] == id:
-            qntd += 1
-
-    return qntd
-
-# Tipos de individuos, ID's dos mesmos e horas mensais.
-ind_type = ['Aluno_IC', 'Aluno_mestrado', 'Aluno_doutorado', 'Prof_orientador']
-ind_id = [0, 1, 2, 3]
-horas = [160, 96, 64, 40]
 
 # Restrições
+horas = [160, 96, 64, 40]
 horas_max = 800
-max_IC = 5 # id 0
-max_Mest = 4 # id 1
-max_Dout = 3 # id 2
-max_Prof = 2 # id 3
+max_qntd = [5, 4, 3, 2]
+len_gen = len(max_qntd)
+max_IC = 5 
+max_Mest = 4 
+max_Dout = 3 
+max_Prof = 2 
 min_of_each = 1 
-max_inds = max_IC + max_Mest + max_Dout + max_Prof
 
 # Definição dos parâmetros
 taxa_mutacao = 0.05
-tamanho_populacao = 10
-fitness_ideal = horas_max # vou estimar como 95% das horas máximas pq sim, sei lá, se der errado eu mudo dps foda-se
-geracao_limite = 10000
+tamanho_populacao = 100
+fitness_ideal = horas_max * 0.98 # vou estimar como 95% das horas máximas pq sim, sei lá, se der errado eu mudo dps foda-se
+geracao_limite = 1000
 
 # Gerar populações iniciais de cada um dos tipos de indivíduos
 populacao = []
-for i in range(tamanho_populacao):
+for i in range(tamanho_populacao - 1):
 
-    length = random.randint(min_of_each, max_IC)
-    IC_array = [0] * length
-    length = random.randint(min_of_each, max_Mest)
-    mest_array = [1] * length
-    length = random.randint(min_of_each, max_Dout)
-    dout_array = [2] * length
-    length = random.randint(min_of_each, max_Prof)
-    prof_array = [3] * length
+    IC = random.randint(min_of_each, max_qntd[0])
+    mest = random.randint(min_of_each, max_qntd[1])
+    dout = random.randint(min_of_each, max_qntd[2])
+    prof = random.randint(min_of_each, max_qntd[3])
 
-    individuo = IC_array + mest_array + dout_array + prof_array
-    length = max_inds - len(individuo)
-    void_array = [4521557] * length # preencher o array do individuo pra poder criar a populacao sem problemas com relação à tamanhos diferentes de array
-    individuo += void_array
+    individuo = [IC, mest, dout, prof]
     populacao.append(individuo)
+
 
 vetor_fitness_inicial = []
 for i in range(tamanho_populacao - 1):
@@ -95,7 +74,7 @@ geracao = 0
 for gen in range(0, geracao_limite):
     vetor_fitness = []
 
-    for i in range(tamanho_populacao):
+    for i in range(tamanho_populacao - 1):
         vetor_fitness.append(fitness(populacao[i]))
     
     # Encontra melhor fitness
@@ -109,14 +88,14 @@ for gen in range(0, geracao_limite):
         geracao = gen+1
         break
 
-    # Parents definition
-    size = (tamanho_populacao, max_inds)
+    # Definição dos pais
+    size = (tamanho_populacao, len_gen)
     pais = np.zeros(size, dtype=int)
 
     # Pais definidos por quem tem a melhor fitness
-    for j in range(tamanho_populacao):
-        index_pai_1 = np.random.randint(tamanho_populacao)
-        index_pai_2 = np.random.randint(tamanho_populacao)
+    for j in range(tamanho_populacao - 1):
+        index_pai_1 = np.random.randint(tamanho_populacao - 1) # primeiro indexador aleatorio
+        index_pai_2 = np.random.randint(tamanho_populacao - 1) # segundo indexador aleatorio
         if vetor_fitness[index_pai_1] > vetor_fitness[index_pai_2]:
             pais[j] = populacao[index_pai_1]
         else:
@@ -128,7 +107,7 @@ for gen in range(0, geracao_limite):
 
     for k in range(1, tamanho_populacao):
         # Random crossover gene point
-        ponto_de_crossover = np.random.randint(max_inds)
+        ponto_de_crossover = np.random.randint(len_gen)
         index_pai_1 = np.random.randint(tamanho_populacao)
         index_pai_2 = np.random.randint(tamanho_populacao)
         pai_1 = pais[index_pai_1]
@@ -140,9 +119,9 @@ for gen in range(0, geracao_limite):
 
     # Mutation
     for l in range(1, tamanho_populacao):
-        for m in range(max_inds):
+        for m in range(len_gen):
             if np.random.rand() < taxa_mutacao:
-                offspring[l][m] = np.random.randint(4)
+                offspring[l][m] = np.random.randint(4) 
 
     # Update population
     populacao = offspring
@@ -151,19 +130,15 @@ for gen in range(0, geracao_limite):
 final = time.time()
 
 vetor_fitness_final = []
-for i in range(tamanho_populacao):
+for i in range(tamanho_populacao - 1):
         vetor_fitness_final.append(fitness(populacao[i]))
 
 # Best genotype
 melhor_idx = vetor_fitness_final.index(max(vetor_fitness_final))
 
-Individuos_finais = []
-for i in range(len(populacao[melhor_idx])):
-    if populacao[melhor_idx][i] < 4:
-        Individuos_finais.append(ind_type[populacao[melhor_idx][i]])
 
 melhor_fitness_final = fitness(populacao[melhor_idx])
-print("Individuos escolhidos:", Individuos_finais)
+print("Individuos escolhidos: ", populacao[melhor_idx][0], "Alunos de IC, ",populacao[melhor_idx][1], "Mestrandos, ",populacao[melhor_idx][2], "Doutorandos", populacao[melhor_idx][3], "Professores orientadores",)
 print("geração:", geracao)
 print("fitness ideal:", fitness_ideal)
 print("melhor fitness inicial:", melhor_fitnes_inicial)

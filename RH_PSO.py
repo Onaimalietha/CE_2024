@@ -1,5 +1,6 @@
 import pyswarms as ps
 import numpy as np
+import time
 
 horas_max = 800
 def f(x):
@@ -20,7 +21,10 @@ options = {'c1': 0.5, 'c2': 0.3, 'w':0.9}
 # Call instance of PSO with bounds argument
 optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=4, options=options, bounds=bounds)
 
+inicio = time.time()
 # Perform optimization
 cost, pos = optimizer.optimize(f, iters=1000)
+final = time.time()
 
 print(np.round(pos).astype(int), np.dot(np.round(pos).astype(int), np.array([160, 96, 64, 40]).transpose()))
+print('Tempo de processamento: ',  final - inicio)
